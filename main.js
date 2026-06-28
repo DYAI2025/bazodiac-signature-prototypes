@@ -15,14 +15,12 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 
-// Lighting
 const ambientLight = new THREE.AmbientLight(0x404040, 1);
 scene.add(ambientLight);
-const pointLight = new THREE.PointLight(0xd4af37, 150, 100);
+const pointLight = new THREE.PointLight(0xd4af37, 200, 100);
 pointLight.position.set(10, 20, 10);
 scene.add(pointLight);
 
-// Membrane - Now glowing gold wireframe
 const size = 30;
 const segments = 80;
 const geometry = new THREE.PlaneGeometry(size, size, segments, segments);
@@ -42,7 +40,6 @@ const material = new THREE.MeshStandardMaterial({
 const membrane = new THREE.Mesh(geometry, material);
 scene.add(membrane);
 
-// Identity Nodes (Stronger visual presence)
 const nodes = [
     { pos: new THREE.Vector3(-5, 0, -5), mass: 5.0, color: 0xd4af37 },
     { pos: new THREE.Vector3(6, 0, 4), mass: 7.0, color: 0xffdf00 },
@@ -70,8 +67,8 @@ function animate() {
     requestAnimationFrame(animate);
     
     const time = Date.now() * 0.001;
-    const weather = (weatherInput.value / 100) * 5; // Amplified
-    const tension = (tensionInput.value / 5) * 2;   // Amplified
+    const weather = (weatherInput.value / 100) * 5;
+    const tension = (tensionInput.value / 5) * 2;
 
     const posAttr = geometry.attributes.position;
     
@@ -82,11 +79,9 @@ function animate() {
 
         nodes.forEach(node => {
             const dist = new THREE.Vector2(x - node.pos.x, z - node.pos.z).length();
-            // Stronger gravitational pull
             y -= (node.mass * tension) / (dist + 1.5);
         });
 
-        // Visible cosmic waves
         y += Math.sin(x * 0.4 + time) * weather;
         y += Math.cos(z * 0.4 + time * 0.7) * weather;
 

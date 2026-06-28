@@ -11,9 +11,16 @@
         #controls { margin-top: 10px; pointer-events: auto; }
         .control-group { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         input { cursor: pointer; }
+        #error-overlay { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255,0,0,0.2); color: white; display: none; 
+            justify-content: center; align-items: center; z-index: 100;
+            font-family: monospace; text-align: center; pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    <div id="error-overlay">ERROR: Loading failed. Check console.</div>
     <div id="ui">
         <h1>Cymatic Resonance Sphere</h1>
         <p>Frequency-driven Identity Structure</p>
@@ -40,96 +47,105 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020205);
+        const errorOverlay = document.getElementById('error-overlay');
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 25);
+        try {
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020205);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(renderer.domElement);
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 25);
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-
-        const ambientLight = new THREE.AmbientLight(0x404040, 1);
-        scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xd4af37, 200, 50);
-        pointLight.position.set(10, 10, 10);
-        scene.add(pointLight);
-
-        const particleCount = 15000;
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        
-        const colorGold = new THREE.Color(0xd4af37);
-
-        for (let i = 0; i < particleCount; i++) {
-            const phi = Math.acos(-1 + (2 * i) / particleCount);
-            const theta = Math.sqrt(particleCount * Math.PI) * phi;
-            positions[i * 3] = Math.sin(phi) * Math.cos(theta) * 10;
-            positions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * 10;
-            positions[i * 3 + 2] = Math.cos(phi) * 10;
-            colors[i * 3] = colorGold.r;
-            colors[i * 3 + 1] = colorGold.g;
-            colors[i * 3 + 2] = colorGold.b;
-        }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        const material = new THREE.PointsMaterial({
-            size: 0.06,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particles = new THREE.Points(geometry, material);
-        scene.add(particles);
-
-        const freqInput = document.getElementById('freq');
-        const chaosInput = document.getElementById('chaos');
-
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            const time = Date.now() * 0.001;
-            const freq = freqInput.value / 10;
-            const chaos = chaosInput.value / 100;
-
-            const posAttr = geometry.attributes.position;
-            
-            for (let i = 0; i < posAttr.count; i++) {
-                const px = positions[i * 3];
-                const py = positions[i * 3 + 1];
-                const pz = positions[i * 3 + 2];
-                
-                const dist = Math.sqrt(px*px + py*py + pz*pz);
-                const angle = Math.atan2(py, px);
-                
-                const wave = Math.sin(angle * freq + time) * chaos * 3;
-                const radius = dist + wave;
-                
-                posAttr.setXYZ(i, (px/dist)*radius, (py/dist)*radius, (pz/dist)*radius);
-            }
-            
-            posAttr.needsUpdate = true;
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
 
-        animate();
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 1);
+            scene.add(ambientLight);
+            const pointLight = new THREE.PointLight(0xd4af37, 200, 50);
+            pointLight.position.set(10, 10, 10);
+            scene.add(pointLight);
+
+            const particleCount = 15000;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            
+            const colorGold = new THREE.Color(0xd4af37);
+
+            for (let i = 0; i < particleCount; i++) {
+                const phi = Math.acos(-1 + (2 * i) / particleCount);
+                const theta = Math.sqrt(particleCount * Math.PI) * phi;
+                positions[i * 3] = Math.sin(phi) * Math.cos(theta) * 10;
+                positions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * 10;
+                positions[i * 3 + 2] = Math.cos(phi) * 10;
+                colors[i * 3] = colorGold.r;
+                colors[i * 3 + 1] = colorGold.g;
+                colors[i * 3 + 2] = colorGold.b;
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.06,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            const freqInput = document.getElementById('freq');
+            const chaosInput = document.getElementById('chaos');
+
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                const time = Date.now() * 0.001;
+                const freq = (freqInput.value || 20) / 10;
+                const chaos = (chaosInput.value || 10) / 100;
+
+                const posAttr = geometry.attributes.position;
+                
+                for (let i = 0; i < posAttr.count; i++) {
+                    const px = positions[i * 3];
+                    const py = positions[i * 3 + 1];
+                    const pz = positions[i * 3 + 2];
+                    
+                    const dist = Math.sqrt(px*px + py*py + pz*pz) || 1;
+                    const angle = Math.atan2(py, px);
+                    
+                    const wave = Math.sin(angle * freq + time) * chaos * 3;
+                    const radius = dist + wave;
+                    
+                    posAttr.setXYZ(i, (px/dist)*radius, (py/dist)*radius, (pz/dist)*radius);
+                }
+                
+                posAttr.needsUpdate = true;
+                controls.update();
+                renderer.render(scene, camera);
+            }
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            animate();
+            console.log("Cymatic Sphere initialized successfully");
+        } catch (e) {
+            console.error("Symmetry Error:", e);
+            errorOverlay.style.display = 'flex';
+            errorOverlay.innerText = "Symmetry Error: " + e.message;
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazodiac Signature - Cymatic Resonance Sphere</title>
+    <style>
+        body { margin: 0; background: #020205; color: #d4af37; font-family: sans-serif; overflow: hidden; }
+        #ui { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
+        #ui h1 { margin: 0; font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; }
+        #controls { margin-top: 10px; pointer-events: auto; }
+        .control-group { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        input { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <h1>Cymatic Resonance Sphere</h1>
+        <p>Frequency-driven Identity Structure</p>
+        <div id="controls">
+            <div class="control-group">
+                <label>Base Frequency:</label>
+                <input type="range" id="freq" min="1" max="100" value="20">
+            </div>
+            <div class="control-group">
+                <label>Resonance Chaos:</label>
+                <input type="range" id="chaos" min="0" max="100" value="10">
+            </div>
+        </div>
+    </div>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020205);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 20);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 1);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xd4af37, 200, 50);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        // Cymatic Particle System
+        const particleCount = 15000;
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        
+        const colorGold = new THREE.Color(0xd4af37);
+        const colorSilver = new THREE.Color(0xc0c0c0);
+
+        for (let i = 0; i < particleCount; i++) {
+            // Start particles in a sphere
+            const phi = Math.acos(-1 + (2 * i) / particleCount);
+            const theta = Math.sqrt(particleCount * Math.PI) * phi;
+            positions[i * 3] = Math.sin(phi) * Math.cos(theta) * 10;
+            positions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * 10;
+            positions[i * 3 + 2] = Math.cos(phi) * 10;
+            
+            colors[i * 3] = colorGold.r;
+            colors[i * 3 + 1] = colorGold.g;
+            colors[i * 3 + 2] = colorGold.b;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.05,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        const freqInput = document.getElementById('freq');
+        const chaosInput = document.getElementById('chaos');
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = Date.now() * 0.001;
+            const freq = freqInput.value / 10;
+            const chaos = chaosInput.value / 100;
+
+            const posAttr = geometry.attributes.position;
+            
+            for (let i = 0; i < posAttr.count; i++) {
+                let x = posAttr.// Correcting logic to calculate current position on sphere
+                // To simulate cymatics, we use spherical harmonics approximation
+                const px = positions[i * 3];
+                const py = positions[i * 3 + 1];
+                const pz = positions[i * 3 + 2];
+                
+                const dist = Math.sqrt(px*px + py*py + pz*pz);
+                const angle = Math.atan2(py, px);
+                
+                // The "Frequency" modulates the distance from center
+                const wave = Math.sin(angle * freq + time) * chaos * 2;
+                const radius = dist + wave;
+                
+                const nx = (px / dist) * radius;
+                const ny = (py / dist) * radius;
+                const nz = (pz / dist) * radius;
+                
+                posAttr.setXYZ(i, nx, ny, nz);
+            }
+            
+            posAttr.needsUpdate = true;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

@@ -5,26 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bazodiac Signature - Bioluminescent Neuro-Nebula</title>
     <style>
-        body { margin: 0; background: #020205; color: #d4af37; font-family: sans-serif; overflow: hidden; }
-        #ui { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
-        #ui h1 { margin: 0; font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; }
-        #controls { margin-top: 10px; pointer-events: auto; }
-        .control-group { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        input { cursor: pointer; }
+        body { margin: 0; background: #010103; color: #d4af37; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        #ui { position: absolute; top: 30px; left: 30px; z-index: 10; pointer-events: none; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
+        #ui h1 { margin: 0; font-size: 1.8rem; letter-spacing: 4px; text-transform: uppercase; font-weight: 300; }
+        #ui p { opacity: 0.7; font-style: italic; margin-bottom: 20px; }
+        #controls { pointer-events: auto; background: rgba(20, 20, 30, 0.6); padding: 20px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.3); backdrop-filter: blur(10px); width: 250px; }
+        .control-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        input { cursor: pointer; accent-color: #d4af37; width: 100%; }
     </style>
 </head>
 <body>
     <div id="ui">
-        <h1>Bioluminescent Neuro-Nebula</h1>
-        <p>Living Network of Identity Resonance</p>
+        <h1>Neuro-Nebula</h1>
+        <p>Living Resonance Network</p>
         <div id="controls">
             <div class="control-group">
-                <label>Neural Pulse:</label>
+                <label>Neural Pulse Speed</label>
                 <input type="range" id="pulse" min="1" max="100" value="30">
             </div>
             <div class="control-group">
-                <label>Network Density:</label>
-                <input type="range" id="density" min="1" max="100" value="50">
+                <label>Connection Density</label>
+                <input type="range" id="density" min="1" max="100" value="60">
             </div>
         </div>
     </div>
@@ -41,10 +43,10 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020205);
+        scene.background = new THREE.Color(0x010103);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 30);
+        camera.position.set(0, 10, 30);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -54,45 +56,90 @@
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 1);
+        // Lighting for the atmosphere
+        const ambientLight = new THREE.AmbientLight(0x101020, 1);
         scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xd4af37, 50, 100);
+        pointLight.position.set(0, 20, 0);
+        scene.add(pointLight);
 
-        // Nebula Nodes (13 Identity Dimensions)
+        // 13 Identity Nodes
         const nodeCount = 13;
         const nodes = [];
         const nodeGroup = new THREE.Group();
 
         for (let i = 0; i < nodeCount; i++) {
             const angle = (i / nodeCount) * Math.PI * 2;
-            const radius = 10 + Math.random() * 5;
-            const pos = new THREE.Vector3(Math.cos(angle) * radius, (Math.random() - 0.5) * 10, Math.sin(angle) * radius);
+            const radius = 8 + Math.random() * 6;
+            const pos = new THREE.Vector3(
+                Math.cos(angle) * radius, 
+                (Math.random() - 0.5) * 15, 
+                Math.sin(angle) * radius
+            );
             
-            const nodeGeo = new THREE.SphereGeometry(0.3);
+            // Core node
+            const nodeGeo = new THREE.SphereGeometry(0.4, 16, 16);
             const nodeMat = new THREE.MeshStandardMaterial({ 
                 color: 0xd4af37, 
-                emissive: 0xd4af37, 
+                emissive: 0xffdf00, 
                 emissiveIntensity: 2 
             });
             const node = new THREE.Mesh(nodeGeo, nodeMat);
             node.position.copy(pos);
             nodeGroup.add(node);
-            nodes.push({ mesh: node, originalPos: pos.clone() });
+
+            // Glow aura for each node
+            const auraGeo = new THREE.SphereGeometry(0.8, 16, 16);
+            const auraMat = new THREE.MeshBasicMaterial({ 
+                color: 0xd4af37, 
+                transparent: true, 
+                opacity: 0.2,
+                blending: THREE.AdditiveBlending 
+            });
+            const aura = new THREE.Mesh(auraGeo, auraMat);
+            node.add(aura);
+
+            nodes.push({ mesh: node, originalPos: pos.clone(), phase: Math.random() * Math.PI * 2 });
         }
         scene.add(nodeGroup);
 
-        // Filaments (The connections)
-        const linesMaterial = new THREE.LineBasicMaterial({ 
+        // Filaments - Using a customized LineSegments approach
+        const lineMaterial = new THREE.LineBasicMaterial({ 
             color: 0xaa8800, 
             transparent: true, 
-            opacity: 0.4,
+            opacity: 0.3,
             blending: THREE.AdditiveBlending 
         });
-        const linesGeometry = new THREE.BufferGeometry();
+        const lineGeometry = new THREE.BufferGeometry();
         const linePositions = new Float32Array(nodeCount * nodeCount * 3);
-        linesGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-        const filaments = new THREE.LineSegments(linesGeometry, linesMaterial);
+        lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+        const filaments = new THREE.LineSegments(lineGeometry, lineMaterial);
         scene.add(filaments);
+
+        // Energy Particles that flow between nodes
+        const particleCount = 100;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        const particleMaterial = new THREE.PointsMaterial({ 
+            color: 0xffffff, 
+            size: 0.15, 
+            transparent: true, 
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending 
+        });
+        const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particleSystem);
+
+        const particlesData = [];
+        for(let i=0; i<particleCount; i++) {
+            particlesData.push({
+                startNode: Math.floor(Math.random() * nodeCount),
+                endNode: Math.floor(Math.random() * nodeCount),
+                progress: Math.random(),
+                speed: 0.005 + Math.random() * 0.01
+            });
+        }
 
         const pulseInput = document.getElementById('pulse');
         const densityInput = document.getElementById('density');
@@ -104,31 +151,55 @@
             const pulseSpeed = pulseInput.value / 100;
             const density = densityInput.value / 100;
 
-            // Animate nodes gently
+            // 1. Organic Node Movement
             nodes.forEach((node, i) => {
-                const offset = Math.sin(time + i) * 0.2;
-                node.mesh.position.y = node.originalPos.y + offset;
-                node.mesh.material.emissiveIntensity = 1 + Math.sin(time * 2 + i) * 0.5;
+                const movementScale = 0.5;
+                node.mesh.position.x = node.originalPos.x + Math.sin(time * 0.5 + node.phase) * movementScale;
+                node.mesh.position.y = node.originalPos.y + Math.cos(time * 0.7 + node.phase) * movementScale;
+                node.mesh.position.z = node.originalPos.z + Math.sin(time * 0.3 + node.phase) * movementScale;
+                
+                // Pulse the glow
+                node.// Correcting accessibility to child aura
+                node.mesh.children[0].material.opacity = 0.2 + Math.sin(time * 2 + node.phase) * 0.1;
             });
 
-            // Update filaments
-            const posAttr = linesGeometry.attributes.position;
+            // 2. Dynamic Filaments
+            const posAttr = lineGeometry.attributes.position;
             let lineIdx = 0;
             for (let i = 0; i < nodeCount; i++) {
                 for (let j = i + 1; j < nodeCount; j++) {
                     const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
-                    if (dist < 15 * density + 5) {
+                    if (dist < 20 * density) {
                         posAttr.setXYZ(lineIdx++, nodes[i].mesh.position.x, nodes[i].mesh.position.y, nodes[i].mesh.position.z);
                         posAttr.setXYZ(lineIdx++, nodes[j].mesh.position.x, nodes[j].mesh.position.y, nodes[j].mesh.position.z);
                     } else {
-                        // Hide line by putting endpoints at the same spot
                         posAttr.setXYZ(lineIdx++, 0, 0, 0);
                         posAttr.setXYZ(lineIdx++, 0, 0, 0);
                     }
                 }
             }
-            
             posAttr.needsUpdate = true;
+
+            // 3. Energy Pulse Particles
+            const pPosAttr = particleGeometry.attributes.position;
+            for(let i=0; i<particleCount; i++) {
+                const p = particlesData[i];
+                p.progress += p.speed * (1 + pulseSpeed * 2);
+                if(p.progress > 1) {
+                    p.progress = 0;
+                    p.startNode = Math.floor(Math.random() * nodeCount);
+                    p.endNode = Math.floor(Math.random() * nodeCount);
+                }
+                
+                const start = nodes[p.startNode].mesh.position;
+                const end = nodes[p.endNode].mesh.// Correcting property access
+                const endPos = nodes[p.endNode].mesh.position;
+                
+                const currentPos = new THREE.Vector3().lerpVectors(start, endPos, p.progress);
+                pPosAttr.setXYZ(i, currentPos.x, currentPos.y, currentPos.z);
+            }
+            pPosAttr.needsUpdate = true;
+
             controls.update();
             renderer.render(scene, camera);
         }

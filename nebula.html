@@ -13,19 +13,24 @@
         .control-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
         label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
         input { cursor: pointer; accent-color: #d4af37; width: 100%; }
+        #error-log { 
+            position: absolute; bottom: 10px; right: 10px; color: red; font-family: monospace; 
+            font-size: 10px; pointer-events: none; opacity: 0.5; 
+        }
     </style>
 </head>
 <body>
+    <div id="error-log"></div>
     <div id="ui">
         <h1>Neuro-Nebula</h1>
-        <p>Living Resonance Network</p>
+        <p>The Mysterious Resonance Cloud</p>
         <div id="controls">
             <div class="control-group">
                 <label>Neural Pulse Speed</label>
                 <input type="range" id="pulse" min="1" max="100" value="30">
             </div>
             <div class="control-group">
-                <label>Connection Density</label>
+                <label>Network Density</label>
                 <input type="range" id="density" min="1" max="100" value="60">
             </div>
         </div>
@@ -42,175 +47,172 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x010103);
+        const log = (msg) => {
+            document.getElementById('error-log').innerText += "\n" + msg;
+            console.log(msg);
+        };
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 10, 30);
+        try {
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x010103);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(renderer.domElement);
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 10, 30);
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
 
-        // Lighting for the atmosphere
-        const ambientLight = new THREE.AmbientLight(0x101020, 1);
-        scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xd4af37, 50, 100);
-        pointLight.position.set(0, 20, 0);
-        scene.add(pointLight);
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
 
-        // 13 Identity Nodes
-        const nodeCount = 13;
-        const nodes = [];
-        const nodeGroup = new THREE.Group();
+            const ambientLight = new THREE.AmbientLight(0x202040, 1);
+            scene.add(ambientLight);
+            const pointLight = new THREE.PointLight(0xd4af37, 100, 100);
+            pointLight.position.set(0, 20, 0);
+            scene.add(pointLight);
 
-        for (let i = 0; i < nodeCount; i++) {
-            const angle = (i / nodeCount) * Math.PI * 2;
-            const radius = 8 + Math.random() * 6;
-            const pos = new THREE.Vector3(
-                Math.cos(angle) * radius, 
-                (Math.random() - 0.5) * 15, 
-                Math.sin(angle) * radius
-            );
-            
-            // Core node
-            const nodeGeo = new THREE.SphereGeometry(0.4, 16, 16);
-            const nodeMat = new THREE.MeshStandardMaterial({ 
-                color: 0xd4af37, 
-                emissive: 0xffdf00, 
-                emissiveIntensity: 2 
-            });
-            const node = new THREE.Mesh(nodeGeo, nodeMat);
-            node.position.copy(pos);
-            nodeGroup.add(node);
+            // CREATE GLOW TEXTURE for the "Nebula" feel
+            const createGlowTexture = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+                gradient.addColorStop(0, 'rgba(212, 175, 55, 1)');
+                gradient.addColorStop(0.2, 'rgba(212, 175, 55, 0.5)');
+                gradient.addColorStop(1, 'rgba(212, 175, 55, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 64, 64);
+                return new THREE.CanvasTexture(canvas);
+            };
 
-            // Glow aura for each node
-            const auraGeo = new THREE.SphereGeometry(0.8, 16, 16);
-            const auraMat = new THREE.MeshBasicMaterial({ 
-                color: 0xd4af37, 
+            const glowTexture = createGlowTexture();
+
+            // 13 Identity Nodes
+            const nodeCount = 13;
+            const nodes = [];
+            const nodeGroup = new THREE.Group();
+
+            for (let i = 0; i < nodeCount; i++) {
+                const angle = (i / nodeCount) * Math.PI * 2;
+                const radius = 8 + Math.random() * 6;
+                const pos = new THREE.Vector3(
+                    Math.cos(angle) * radius, 
+                    (Math.random() - 0.5) * 10, 
+                    Math.sin(angle) * radius
+                );
+                
+                const nodeGeo = new THREE.SphereGeometry(0.3, 16, 16);
+                const nodeMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xd4af37, 
+                    emissive: 0xffdf00, 
+                    emissiveIntensity: 2 
+                });
+                const node = new THREE.Mesh(nodeGeo, nodeMat);
+                node.position.copy(pos);
+                nodeGroup.add(node);
+
+                // Soft Glow Aura
+                const auraGeo = new THREE.Sprite(new THREE.SpriteMaterial({ 
+                    map: glowTexture, 
+                    transparent: true, 
+                    opacity: 0.5, 
+                    blending: THREE.AdditiveBlending 
+                }));
+                auraGeo.scale.set(4, 4, 1);
+                node.add(auraGeo);
+
+                nodes.push({ mesh: node, originalPos: pos.clone(), phase: Math.random() * Math.PI * 2 });
+            }
+            scene.add(nodeGroup);
+
+            // Filaments (Lines)
+            const lineMaterial = new THREE.LineBasicMaterial({ 
+                color: 0xaa8800, 
                 transparent: true, 
-                opacity: 0.2,
+                opacity: 0.3,
                 blending: THREE.AdditiveBlending 
             });
-            const aura = new THREE.Mesh(auraGeo, auraMat);
-            node.add(aura);
+            const lineGeometry = new THREE.BufferGeometry();
+            const linePositions = new Float32Array(nodeCount * nodeCount * 3);
+            lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+            const filaments = new THREE.LineSegments(lineGeometry, lineMaterial);
+            scene.add(filaments);
 
-            nodes.push({ mesh: node, originalPos: pos.clone(), phase: Math.random() * Math.PI * 2 });
-        }
-        scene.add(nodeGroup);
-
-        // Filaments - Using a customized LineSegments approach
-        const lineMaterial = new THREE.LineBasicMaterial({ 
-            color: 0xaa8800, 
-            transparent: true, 
-            opacity: 0.3,
-            blending: THREE.AdditiveBlending 
-        });
-        const lineGeometry = new THREE.BufferGeometry();
-        const linePositions = new Float32Array(nodeCount * nodeCount * 3);
-        lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-        const filaments = new THREE.LineSegments(lineGeometry, lineMaterial);
-        scene.add(filaments);
-
-        // Energy Particles that flow between nodes
-        const particleCount = 100;
-        const particleGeometry = new THREE.BufferGeometry();
-        const particlePositions = new Float32Array(particleCount * 3);
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-        const particleMaterial = new THREE.PointsMaterial({ 
-            color: 0xffffff, 
-            size: 0.15, 
-            transparent: true, 
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending 
-        });
-        const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
-        scene.add(particleSystem);
-
-        const particlesData = [];
-        for(let i=0; i<particleCount; i++) {
-            particlesData.push({
-                startNode: Math.floor(Math.random() * nodeCount),
-                endNode: Math.floor(Math.random() * nodeCount),
-                progress: Math.random(),
-                speed: 0.005 + Math.random() * 0.01
+            // Nebula Particles (The Smoke/Cloud)
+            const particleCount = 3000;
+            const particlePositions = new Float32Array(particleCount * 3);
+            const particleSizes = new Float32Array(particleCount);
+            for (let i = 0; i < particleCount; i++) {
+                particlePositions[i * 3] = (Math.random() - 0.5) * 40;
+                particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+                particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 40;
+                particleSizes[i] = Math.random() * 1.5;
+            }
+            const particleGeo = new THREE.BufferGeometry();
+            particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+            const particleMat = new THREE.PointsMaterial({ 
+                size: 0.5, 
+                map: glowTexture, 
+                transparent: true, 
+                opacity: 0.4, 
+                blending: THREE.AdditiveBlending, 
+                depthWrite: false 
             });
-        }
+            const nebulaCloud = new THREE.Points(particleGeo, particleMat);
+            scene.add(nebulaCloud);
 
-        const pulseInput = document.getElementById('pulse');
-        const densityInput = document.getElementById('density');
+            const pulseInput = document.getElementById('pulse');
+            const densityInput = document.getElementById('density');
 
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            const time = Date.now() * 0.001;
-            const pulseSpeed = pulseInput.value / 100;
-            const density = densityInput.value / 100;
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = Date.now() * 0.001;
+                const pulseSpeed = (pulseInput.value || 30) / 100;
+                const density = (densityInput.value || 60) / 100;
 
-            // 1. Organic Node Movement
-            nodes.forEach((node, i) => {
-                const movementScale = 0.5;
-                node.mesh.position.x = node.originalPos.x + Math.sin(time * 0.5 + node.phase) * movementScale;
-                node.mesh.position.y = node.originalPos.y + Math.cos(time * 0.7 + node.phase) * movementScale;
-                node.mesh.position.z = node.originalPos.z + Math.sin(time * 0.3 + node.phase) * movementScale;
-                
-                // Pulse the glow
-                node.// Correcting accessibility to child aura
-                node.mesh.children[0].material.opacity = 0.2 + Math.sin(time * 2 + node.phase) * 0.1;
-            });
+                nodes.forEach((node, i) => {
+                    node.mesh.position.y = node.originalPos.y + Math.sin(time * 0.5 + node.phase) * 0.5;
+                });
 
-            // 2. Dynamic Filaments
-            const posAttr = lineGeometry.attributes.position;
-            let lineIdx = 0;
-            for (let i = 0; i < nodeCount; i++) {
-                for (let j = i + 1; j < nodeCount; j++) {
-                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
-                    if (dist < 20 * density) {
-                        posAttr.setXYZ(lineIdx++, nodes[i].mesh.position.x, nodes[i].mesh.position.y, nodes[i].mesh.position.z);
-                        posAttr.setXYZ(lineIdx++, nodes[j].mesh.position.x, nodes[j].mesh.position.y, nodes[j].mesh.position.z);
-                    } else {
-                        posAttr.setXYZ(lineIdx++, 0, 0, 0);
-                        posAttr.setXYZ(lineIdx++, 0, 0, 0);
+                const posAttr = lineGeometry.attributes.position;
+                let lineIdx = 0;
+                for (let i = 0; i < nodeCount; i++) {
+                    for (let j = i + 1; j < nodeCount; j++) {
+                        const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
+                        if (dist < 20 * density) {
+                            posAttr.setXYZ(lineIdx++, nodes[i].mesh.position.x, nodes[i].mesh.position.y, nodes[i].mesh.position.z);
+                            posAttr.setXYZ(lineIdx++, nodes[j].mesh.position.x, nodes[j].mesh.position.y, nodes[j].mesh.position.z);
+                        } else {
+                            posAttr.setXYZ(lineIdx++, 0, 0, 0);
+                            posAttr.setXYZ(lineIdx++, 0, 0, 0);
+                        }
                     }
                 }
-            }
-            posAttr.needsUpdate = true;
+                posAttr.needsUpdate = true;
 
-            // 3. Energy Pulse Particles
-            const pPosAttr = particleGeometry.attributes.position;
-            for(let i=0; i<particleCount; i++) {
-                const p = particlesData[i];
-                p.progress += p.speed * (1 + pulseSpeed * 2);
-                if(p.progress > 1) {
-                    p.progress = 0;
-                    p.startNode = Math.floor(Math.random() * nodeCount);
-                    p.endNode = Math.floor(Math.random() * nodeCount);
-                }
-                
-                const start = nodes[p.startNode].mesh.position;
-                const end = nodes[p.endNode].mesh.// Correcting property access
-                const endPos = nodes[p.endNode].mesh.position;
-                
-                const currentPos = new THREE.Vector3().lerpVectors(start, endPos, p.progress);
-                pPosAttr.setXYZ(i, currentPos.x, currentPos.y, currentPos.z);
-            }
-            pPosAttr.needsUpdate = true;
+                // Slowly rotate the nebula cloud
+                nebulaCloud.rotation.y += 0.001;
+                nebulaCloud.rotation.z += 0.0005;
 
-            controls.update();
-            renderer.render(scene, camera);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            animate();
+            log("Nebula initialized successfully");
+        } catch (e) {
+            log("CRITICAL ERROR: " + e.message);
+            console.error(e);
         }
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        animate();
     </script>
 </body>
 </html>

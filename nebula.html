@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazodiac Signature - Living Neuro-Nebula</title>
+    <title>Bazodiac Signature - Neuro-Nebula</title>
     <style>
         body { margin: 0; background: #000000; color: #00f2ff; font-family: 'Inter', sans-serif; overflow: hidden; }
         #ui { position: absolute; top: 30px; left: 30px; z-index: 10; pointer-events: none; }
-        #ui h1 { margin: 0; font-size: 1.8rem; letter-spacing: 4px; text-transform: uppercase; color: #00f2ff; text-shadow: 0 0 20px #00f2ff; }
-        #controls { pointer-events: auto; background: rgba(0, 0, 20, 0.8); padding: 20px; border-radius: 15px; border: 2px solid #00f2ff; backdrop-filter: blur(10px); width: 280px; margin-top: 20px; }
+        #ui h1 { margin: 0; font-size: 1.6rem; letter-spacing: 4px; text-transform: uppercase; color: #00f2ff; }
+        #controls { pointer-events: auto; background: rgba(0, 0, 20, 0.8); padding: 20px; border-radius: 15px; border: 1px solid #00f2ff; width: 250px; margin-top: 20px; }
         .control-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         label { font-size: 0.7rem; text-transform: uppercase; opacity: 0.8; }
         input { cursor: pointer; accent-color: #00f2ff; }
@@ -19,12 +19,12 @@
         <h1>Neuro-Nebula</h1>
         <div id="controls">
             <div class="control-group">
-                <label>Neural Pulse</label>
-                <input type="range" id="pulse" min="1" max="100" value="50">
+                <label>Vitality (Pulse)</label>
+                <input type="range" id="pulse" min="1" max="100" value="30">
             </div>
             <div class="control-group">
                 <label>Nebula Density</label>
-                <input type="range" id="density" min="1" max="100" value="80">
+                <input type="range" id="density" min="1" max="100" value="60">
             </div>
         </div>
     </div>
@@ -40,146 +40,127 @@
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x000000);
+        try {
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 10, 40);
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 10, 40);
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        document.body.appendChild(renderer.domElement);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.body.appendChild(renderer.domElement);
 
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.autoRotate = true;
+            const controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
 
-        const ambientLight = new THREE.AmbientLight(0x404080, 1);
-        scene.add(ambientLight);
+            const ambientLight = new THREE.AmbientLight(0x202040, 1);
+            scene.add(ambientLight);
 
-        // CREATE GLOW TEXTURE - Much larger and softer
-        const createGlowTexture = (color) => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 128; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-            const grad = ctx.createRadialGradient(64,64,0, 64,64,64);
-            grad.addColorStop(0, color);
-            grad.addColorStop(0.3, color.replace('1', '0.3'));
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0,0,128,128);
-            return new THREE.CanvasTexture(canvas);
-        };
+            const createGlow = (color) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64; canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+                grad.addColorStop(0, color);
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 64, 64);
+                return new THREE.CanvasTexture(canvas);
+            };
 
-        const cyanGlow = createGlowTexture('rgba(0, 242, 255, 1)');
-        const magentaGlow = createGlowTexture('rgba(255, 0, 255, 1)');
+            const cyanTex = createGlow('rgba(0, 242, 255, 0.8)');
+            const magentaTex = createGlow('rgba(255, 0, 255, 0.8)');
 
-        // NEBULA CLOUD - Massively increased count and size
-        const nebulaGroup = new THREE.Group();
-        const cloudCount = 1000; 
-        for(let i=0; i<cloudCount; i++) {
-            const isCyan = Math.random() > 0.5;
-            const mat = new THREE.SpriteMaterial({ 
-                map: isCyan ? cyanGlow : magentaGlow, 
-                transparent: true, 
-                opacity: 0.3, 
-                blending: THREE.AdditiveBlending,
-                depthWrite: false 
-            });
-            const sprite = new THREE.Sprite(mat);
-            const s = 20 + Math.random() * 40; // Huge sprites for "fog" effect
-            sprite.scale.set(s, s, 1);
-            sprite.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*60, (Math.random()-0.5)*80);
-            nebulaGroup.add(sprite);
-        }
-        scene.add(nebulaGroup);
+            // Nebula: Using smaller, more numerous sprites to avoid white-out
+            const nebulaGroup = new THREE.Group();
+            for(let i=0; i<400; i++) {
+                const mat = new THREE.SpriteMaterial({ 
+                    map: Math.random() > 0.5 ? cyanTex : magentaTex, 
+                    transparent: true, 
+                    opacity: 0.15, 
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false 
+                });
+                const sprite = new THREE.Sprite(mat);
+                const s = 5 + Math.random() * 15; // Smaller size to prevent white-out
+                sprite.scale.set(s, s, 1);
+                sprite.position.set((Math.random()-0.5)*60, (Math.random()-0.5)*40, (Math.random()-0.5)*60);
+                nebulaGroup.add(sprite);
+            }
+            scene.add(nebulaGroup);
 
-        // IDENTITY NODES
-        const nodeCount = 13;
-        const nodes = [];
-        const nodeGroup = new THREE.Group();
-
-        for (let i = 0; i < nodeCount; i++) {
-            const angle = (i / nodeCount) * Math.PI * 2;
-            const radius = 12 + Math.random() * 8;
-            const pos = new THREE.Vector3(Math.cos(angle)*radius, (Math.random()-0.5)*15, Math.sin(angle)*radius);
-            
-            const nodeGeo = new THREE.SphereGeometry(0.6, 16, 16);
-            const isMagenta = i % 2 === 0;
-            const color = isMagenta ? new THREE.Color(0xff00ff) : new THREE.Color(0x00f2ff);
-            const nodeMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 10 });
-            const node = new THREE.Mesh(nodeGeo, nodeMat);
-            node.position.copy(pos);
-            nodeGroup.add(node);
-
-            const aura = new THREE.Sprite(new THREE.SpriteMaterial({ 
-                map: isMagenta ? magentaGlow : cyanGlow, 
-                transparent: true, 
-                opacity: 1, 
-                blending: THREE.AdditiveBlending 
-            }));
-            aura.scale.set(10, 10, 1);
-            node.add(aura);
-
-            nodes.push({ mesh: node, originalPos: pos.clone(), phase: Math.random()*Math.PI*2 });
-        }
-        scene.add(nodeGroup);
-
-        // FILAMENTS - Made much brighter and more opaque
-        const lineMaterial = new THREE.LineBasicMaterial({ 
-            color: 0x00f2ff, 
-            transparent: true, 
-            opacity: 0.8, // Increased opacity
-            blending: THREE.AdditiveBlending 
-        });
-        const lineGeometry = new THREE.BufferGeometry();
-        const linePositions = new Float32Array(nodeCount * nodeCount * 3);
-        lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-        const filaments = new THREE.LineSegments(lineGeometry, lineMaterial);
-        scene.add(filaments);
-
-        const pulseInput = document.getElementById('pulse');
-        const densityInput = document.getElementById('density');
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const time = Date.now() * 0.001;
-            const pulse = pulseInput.value / 100;
-            const density = densityInput.value / 100;
-
-            nodes.forEach((node, i) => {
-                node.mesh.position.y = node.originalPos.y + Math.sin(time * 0.4 + node.phase) * 1.5;
-                node.mesh.children[0].material.opacity = 0.5 + Math.sin(time * 2 + node.phase) * 0.5;
-            });
-
-            const posAttr = lineGeometry.attributes.position;
-            let lineIdx = 0;
+            // Nodes
+            const nodeCount = 13;
+            const nodes = [];
+            const nodeGroup = new THREE.Group();
             for (let i = 0; i < nodeCount; i++) {
-                for (let j = i + 1; j < nodeCount; j++) {
-                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
-                    if (dist < 30 * density) {
-                        posAttr.setXYZ(lineIdx++, nodes[i].mesh.position.x, nodes[i].mesh.position.y, nodes[i].mesh.position.z);
-                        posAttr.setXYZ(lineIdx++, nodes[j].mesh.position.x, nodes[j].mesh.position.y, nodes[j].mesh.position.z);
-                    } else {
+                const angle = (i / nodeCount) * Math.PI * 2;
+                const radius = 10 + Math.random() * 5;
+                const pos = new THREE.Vector3(Math.cos(angle)*radius, (Math.random()-0.5)*10, Math.sin(angle)*radius);
+                const color = i % 2 === 0 ? new THREE.Color(0xff00ff) : new THREE.Color(0x00f2ff);
+                const node = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 5 }));
+                node.position.copy(pos);
+                nodeGroup.add(node);
+
+                const aura = new THREE.Sprite(new THREE.SpriteMaterial({ 
+                    map: i % 2 === 0 ? magentaTex : cyanTex, 
+                    transparent: true, 
+                    opacity: 0.6, 
+                    blending: THREE.AdditiveBlending 
+                }));
+                aura.scale.set(6, 6, 1);
+                node.add(aura);
+                nodes.push({ mesh: node, originalPos: pos.clone(), phase: Math.random()*Math.PI*2 });
+            }
+            scene.add(nodeGroup);
+
+            // Filaments
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0x00f2ff, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending });
+            const lineGeometry = new THREE.BufferGeometry();
+            const linePos = new Float32Array(nodeCount * nodeCount * 3);
+            lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+            const filaments = new THREE.LineSegments(lineGeometry, lineMaterial);
+            scene.add(filaments);
+
+            const pulseInput = document.getElementById('pulse');
+            const densityInput = document.getElementById('density');
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = Date.now() * 0.001;
+                const pulse = pulseInput.value / 100;
+                const density = densityInput.value / 100;
+
+                nodes.forEach((node, i) => {
+                    node.mesh.position.y = node.originalPos.y + Math.sin(time * 0.5 + node.phase) * 1.0;
+                });
+
+                const posAttr = lineGeometry.attributes.position;
+                let lineIdx = 0;
+                for (let i = 0; i < nodeCount; i++) {
+                    for (let j = i + 1; j < nodeCount; j++) {
+                        const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
+                        if (dist < 25 * density) {
+                            posAttr.setXYZ(lineIdx++, nodes[i].mesh.position.x, nodes[i].mesh.position.y, nodes[i].mesh.position.z);
+                            posAttr.setXYZ(lineIdx++, nodes[j].mesh.position.x, nodes[j].mesh.position.y, nodes[j].mesh.position.z);
+                        } else {
                         posAttr.setXYZ(lineIdx++, 0, 0, 0);
                         posAttr.setXYZ(lineIdx++, 0, 0, 0);
+                        }
                     }
                 }
+                posAttr.needsUpdate = true;
+                nebulaGroup.rotation.y += 0.0005;
+                controls.update();
+                renderer.render(scene, camera);
             }
-            posAttr.needsUpdate = true;
-            nebulaGroup.rotation.y += 0.0005;
-            controls.update();
-            renderer.render(scene, camera);
+            animate();
+        } catch (e) {
+            console.error(e);
+            alert("Render Error: " + e.message);
         }
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        animate();
     </script>
 </body>
 </html>

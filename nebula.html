@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazodiac Signature - Bioluminescent Neuro-Nebula</title>
+    <style>
+        body { margin: 0; background: #020205; color: #d4af37; font-family: sans-serif; overflow: hidden; }
+        #ui { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
+        #ui h1 { margin: 0; font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; }
+        #controls { margin-top: 10px; pointer-events: auto; }
+        .control-group { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        input { cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <h1>Bioluminescent Neuro-Nebula</h1>
+        <p>Living Network of Identity Resonance</p>
+        <div id="controls">
+            <div class="control-group">
+                <label>Neural Pulse:</label>
+                <input type="range" id="pulse" min="1" max="100" value="30">
+            </div>
+            <div class="control-group">
+                <label>Network Density:</label>
+                <input type="range" id="density" min="1" max="100" value="50">
+            </div>
+        </div>
+    </div>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020205);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 30);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 1);
+        scene.add(ambientLight);
+
+        // Nebula Nodes (13 Identity Dimensions)
+        const nodeCount = 13;
+        const nodes = [];
+        const nodeGroup = new THREE.Group();
+
+        for (let i = 0; i < nodeCount; i++) {
+            const angle = (i / nodeCount) * Math.PI * 2;
+            const radius = 10 + Math.random() * 5;
+            const pos = new THREE.Vector3(Math.cos(angle) * radius, (Math.random() - 0.5) * 10, Math.sin(angle) * radius);
+            
+            const nodeGeo = new THREE.SphereGeometry(0.3);
+            const nodeMat = new THREE.MeshStandardMaterial({ 
+                color: 0xd4af37, 
+                emissive: 0xd4af37, 
+                emissiveIntensity: 2 
+            });
+            const node = new THREE.Mesh(nodeGeo, nodeMat);
+            node.position.copy(pos);
+            nodeGroup.add(node);
+            nodes.push({ mesh: node, originalPos: pos.clone() });
+        }
+        scene.add(nodeGroup);
+
+        // Filaments (The connections)
+        const linesMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xaa8800, 
+            transparent: true, 
+            opacity: 0.4,
+            blending: THREE.AdditiveBlending 
+        });
+        const linesGeometry = new THREE.BufferGeometry();
+        const linePositions = new Float32Array(nodeCount * nodeCount * 3);
+        linesGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+        const filaments = new THREE.LineSegments(linesGeometry, linesMaterial);
+        scene.add(filaments);
+
+        const pulseInput = document.getElementById('pulse');
+        const densityInput = document.getElementById('density');
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = Date.now() * 0.001;
+            const pulseSpeed = pulseInput.value / 100;
+            const density = densityInput.value / 100;
+
+            // Animate nodes gently
+            nodes.forEach((node, i) => {
+                const offset = Math.sin(time + i) * 0.2;
+                node.mesh.position.y = node.originalPos.y + offset;
+                node.mesh.material.emissiveIntensity = 1 + Math.sin(time * 2 + i) * 0.5;
+            });
+
+            // Update filaments
+            const posAttr = linesGeometry.attributes.position;
+            let lineIdx = 0;
+            for (let i = 0; i < nodeCount; i++) {
+                for (let j = i + 1; j < nodeCount; j++) {
+                    const dist = nodes[i].mesh.position.distanceTo(nodes[j].mesh.position);
+                    if (dist < 15 * density + 5) {
+                        posAttr.setXYZ(lineIdx++, nodes[i].mesh.position.x, nodes[i].mesh.position.y, nodes[i].mesh.position.z);
+                        posAttr.setXYZ(lineIdx++, nodes[j].mesh.position.x, nodes[j].mesh.position.y, nodes[j].mesh.position.z);
+                    } else {
+                        // Hide line by putting endpoints at the same spot
+                        posAttr.setXYZ(lineIdx++, 0, 0, 0);
+                        posAttr.setXYZ(lineIdx++, 0, 0, 0);
+                    }
+                }
+            }
+            
+            posAttr.needsUpdate = true;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

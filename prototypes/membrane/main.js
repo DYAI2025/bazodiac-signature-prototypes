@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as THREE from '../../../lib/three/three.module.js';
+import { OrbitControls } from '../../../lib/three/OrbitControls.js';
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050505);
@@ -12,17 +12,15 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-const controls = new OrbitControls(camera, renderer.domElement);
+const controls = new OrbitControls(camera, renderer);
 controls.enableDamping = true;
 
-// Lighting
 const ambientLight = new THREE.AmbientLight(0x404040, 2);
 scene.add(ambientLight);
 const pointLight = new THREE.PointLight(0xd4af37, 100, 50);
 pointLight.position.set(5, 10, 5);
 scene.add(pointLight);
 
-// Membrane
 const size = 20;
 const segments = 64;
 const geometry = new THREE.PlaneGeometry(size, size, segments, segments);
@@ -40,7 +38,6 @@ const material = new THREE.MeshPhongMaterial({
 const membrane = new THREE.Mesh(geometry, material);
 scene.add(membrane);
 
-// Identity Nodes (The Masses)
 const nodes = [
     { pos: new THREE.Vector3(-3, 0, -2), mass: 1.5, color: 0xd4af37 },
     { pos: new THREE.Vector3(4, 0, 3), mass: 2.0, color: 0xffdf00 },
@@ -62,10 +59,9 @@ const tensionInput = document.getElementById('tension');
 
 function animate() {
     requestAnimationFrame(animate);
-    
     const time = Date.now() * 0.001;
-    const weather = weatherInput.value / 100;
-    const tension = tensionInput.value / 5;
+    const weather = weatherInput ? weatherInput.value / 100 : 0.5;
+    const tension = tensionInput ? tensionInput.value / 5 : 1;
 
     const posAttr = geometry.attributes.position;
     
@@ -74,13 +70,11 @@ function animate() {
         let z = initialPositions[i * 3 + 2];
         let y = 0;
 
-        // Gravitational Pull from Nodes
         nodes.forEach(node => {
             const dist = new THREE.Vector2(x - node.pos.x, z - node.pos.z).length();
             y -= (node.mass * tension) / (dist + 1);
         });
 
-        // Cosmic Weather (Waves)
         y += Math.sin(x * 0.5 + time) * weather;
         y += Math.cos(z * 0.5 + time * 0.8) * weather;
 

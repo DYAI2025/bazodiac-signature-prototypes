@@ -110,7 +110,7 @@ function switchPrototype(id) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const signature = await loadSignature('/data/user_profile.json');
+    const signature = await loadSignature();
     initHUD(signature);
 
     // Init Switcher

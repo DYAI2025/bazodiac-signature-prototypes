@@ -188,7 +188,7 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-loadSignature('/data/user_profile.json').then(sig => {
+loadSignature().then(sig => {
     signature = sig;
     buildNetwork(sig);
     buildPulses();

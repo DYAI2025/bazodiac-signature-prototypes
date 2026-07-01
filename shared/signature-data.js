@@ -169,8 +169,13 @@ const FALLBACK = {
     cosmic_state: 0.5
 };
 
-/** Fetches data/user_profile.json relative to the page; falls back to a static profile offline. */
-export async function loadSignature(path = '/data/user_profile.json') {
+// Resolved relative to this module's own location (shared/), not the caller's page path or
+// site root — works regardless of how deep the caller is nested or whether the app is hosted
+// under a subpath (e.g. GitHub Pages at /bazodiac-signature-prototypes/).
+const DEFAULT_DATA_URL = new URL('../data/user_profile.json', import.meta.url).href;
+
+/** Fetches data/user_profile.json; falls back to a static profile offline. */
+export async function loadSignature(path = DEFAULT_DATA_URL) {
     try {
         const res = await fetch(path);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);

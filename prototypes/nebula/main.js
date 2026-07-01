@@ -142,7 +142,8 @@ function animate() {
             const sparkIntensity = el.delta > 0.3 ? el.delta * friction : 0;
             sparks.material.opacity = sparkIntensity * 0.9;
             if (sparkIntensity > 0.02) {
-                for (let s = 0; s < 24; s++) {
+                const sparkCount = sparkPos.length / 3;
+                for (let s = 0; s < sparkCount; s++) {
                     const r = 0.3 + Math.random() * 0.6 * (0.5 + sparkIntensity);
                     const a1 = Math.random() * Math.PI * 2, a2 = Math.random() * Math.PI;
                     sparkPos[s * 3] = mesh.position.x + Math.sin(a2) * Math.cos(a1) * r;

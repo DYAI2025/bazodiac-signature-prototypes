@@ -65,10 +65,20 @@ function initHUD(signature) {
         const row = document.createElement('div');
         row.className = 'wuxing-row';
         row.title = el.narrative;
-        row.innerHTML = `
-            <div class="symbol">${meta.symbol}</div>
-            <div class="bar-bg"><div class="bar-fill" style="width: ${el.strength * 100}%; background: ${colorHex(meta.color)}"></div></div>
-        `;
+
+        const symbol = document.createElement('div');
+        symbol.className = 'symbol';
+        symbol.textContent = meta.symbol;
+
+        const barBg = document.createElement('div');
+        barBg.className = 'bar-bg';
+        const barFill = document.createElement('div');
+        barFill.className = 'bar-fill';
+        barFill.style.width = `${el.strength * 100}%`;
+        barFill.style.background = colorHex(meta.color);
+        barBg.appendChild(barFill);
+
+        row.append(symbol, barBg);
         wuxingPanel.appendChild(row);
     });
 }

@@ -135,7 +135,9 @@ function animate() {
                 displacement += wave * (1 - harmony) * 0.18;
             }
 
-            const noise = (Math.random() - 0.5) * friction * 0.4;
+            // deterministic pseudo-noise (index+time hash) instead of Math.random() — avoids a
+            // per-particle RNG call in the hot loop and keeps jitter temporally smooth
+            const noise = Math.sin(i * 12.9898 + time * 4.0) * Math.sin(i * 78.233 - time * 2.3) * friction * 0.4;
             const newRadius = BASE_RADIUS + displacement + noise;
 
             posAttr.setX(i, nx * newRadius);

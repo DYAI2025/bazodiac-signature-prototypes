@@ -2,6 +2,7 @@
  * Unified Signature Shell
  * Handles prototype switching and HUD updates
  */
+import { loadSignature, ELEMENT_META, ELEMENT_ORDER } from './shared/signature-data.js';
 
 const PROTOTYPES = {
     membrane: {
@@ -21,33 +22,31 @@ const PROTOTYPES = {
     }
 };
 
-const MOCK_DATA = {
-    harmony: 0.78,
-    cosmicState: 0.42,
-    dominant: 'Feuer',
-    growthEdge: 'Wachstumsraum: Metall (Delta 42% - West und Bazi divergieren hier)',
-    archetypes: [
-        { name: 'Der Pionier', resonance: 0.85, narrative: 'Starke Expansionskraft und Vision' },
-        { name: 'Der Anker', resonance: 0.45, narrative: 'Stabilität in Zeiten des Wandels' },
-        { name: 'Der Weise', resonance: 0.62, narrative: 'Tiefe intuitive Einsicht' },
-        { name: 'Der Schatten', resonance: 0.31, narrative: 'Unerforschte emotionale Tiefe' }
-    ],
-    wuxing: {
-        holz: { strength: 0.7, color: '#4a7c59', symbol: '☳' },
-        feuer: { strength: 0.9, color: '#d43d3d', symbol: '☲' },
-        erde: { strength: 0.5, color: '#8b6914', symbol: '☶' },
-        metall: { strength: 0.3, color: '#c0c0c0', symbol: '☴' },
-        wasser: { strength: 0.6, color: '#3d6fb4', symbol: '☵' }
-    }
-};
+// Archetypes have no defined math in MATHEMATICS.md — kept as illustrative copy.
+const ARCHETYPES = [
+    { name: 'Der Pionier', resonance: 0.85, narrative: 'Starke Expansionskraft und Vision' },
+    { name: 'Der Anker', resonance: 0.45, narrative: 'Stabilität in Zeiten des Wandels' },
+    { name: 'Der Weise', resonance: 0.62, narrative: 'Tiefe intuitive Einsicht' },
+    { name: 'Der Schatten', resonance: 0.31, narrative: 'Unerforschte emotionale Tiefe' }
+];
 
-function initHUD() {
-    // 1. Set Growth Edge
-    document.getElementById('growth-edge').innerText = MOCK_DATA.growthEdge;
+function colorHex(intColor) {
+    return '#' + intColor.toString(16).padStart(6, '0');
+}
 
-    // 2. Build Archetypes
+function initHUD(signature) {
+    // 1. Growth Edge (MATHEMATICS.md §6.4 — element with max West/Bazi delta)
+    document.getElementById('growth-edge').innerText = `Wachstumsraum: ${signature.growthEdgeLabel}`;
+
+    // 2. Header metrics
+    document.getElementById('shell-subtitle').innerText = 'Fusion Engine Active';
+    const dom = ELEMENT_META[signature.dominant];
+    document.querySelector('.header .metrics').innerText =
+        `SYSTEM ACTIVE | DOMINANT ${dom.label.toUpperCase()} | HARMONY ${(signature.harmony * 100).toFixed(0)}% | COSMIC STATE ${signature.cosmicState.toFixed(2)}`;
+
+    // 3. Archetypes (illustrative, not math-driven)
     const archPanel = document.getElementById('archetypes-panel');
-    MOCK_DATA.archetypes.forEach(arch => {
+    ARCHETYPES.forEach(arch => {
         const card = document.createElement('div');
         card.className = 'archetype-card';
         card.innerHTML = `
@@ -58,15 +57,28 @@ function initHUD() {
         archPanel.appendChild(card);
     });
 
-    // 3. Build WuXing
+    // 4. WuXing bars — fused strength per element (MATHEMATICS.md §3.1), from real signature
     const wuxingPanel = document.getElementById('wuxing-panel');
-    Object.entries(MOCK_DATA.wuxing).forEach(([id, data]) => {
+    ELEMENT_ORDER.forEach(id => {
+        const el = signature.elements.find(e => e.id === id);
+        const meta = ELEMENT_META[id];
         const row = document.createElement('div');
         row.className = 'wuxing-row';
-        row.innerHTML = `
-            <div class="symbol">${data.symbol}</div>
-            <div class="bar-bg"><div class="bar-fill" style="width: ${data.strength * 100}%; background: ${data.color}"></div></div>
-        `;
+        row.title = el.narrative;
+
+        const symbol = document.createElement('div');
+        symbol.className = 'symbol';
+        symbol.textContent = meta.symbol;
+
+        const barBg = document.createElement('div');
+        barBg.className = 'bar-bg';
+        const barFill = document.createElement('div');
+        barFill.className = 'bar-fill';
+        barFill.style.width = `${el.strength * 100}%`;
+        barFill.style.background = colorHex(meta.color);
+        barBg.appendChild(barFill);
+
+        row.append(symbol, barBg);
         wuxingPanel.appendChild(row);
     });
 }
@@ -97,9 +109,10 @@ function switchPrototype(id) {
     document.querySelector('.brand .subtitle').innerText = PROTOTYPES[id].subtitle;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initHUD();
-    
+document.addEventListener('DOMContentLoaded', async () => {
+    const signature = await loadSignature();
+    initHUD(signature);
+
     // Init Switcher
     const switcher = document.getElementById('proto-switcher');
     Object.keys(PROTOTYPES).forEach(id => {

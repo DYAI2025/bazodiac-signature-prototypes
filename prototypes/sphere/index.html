@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazodiac Sphere — Cymatic Resonance</title>
+    <style>
+        body { margin: 0; background: #050505; color: #e0e0e0; overflow: hidden; font-family: 'Inter', sans-serif; }
+        canvas { display: block; }
+        #hud { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; font-family: 'Cormorant Garamond', serif; }
+        .title { font-size: 24px; color: #d4af37; letter-spacing: 2px; }
+        .metrics { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #888; }
+        #controls { position: absolute; bottom: 20px; right: 20px; background: rgba(26, 26, 26, 0.8); padding: 15px; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.2); backdrop-filter: blur(10px); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+        .ctrl-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        label { font-size: 12px; color: #aaa; text-transform: uppercase; }
+        input { cursor: pointer; accent-color: #d4af37; }
+    </style>
+</head>
+<body>
+    <div id="hud">
+        <div class="title">Cymatic Resonance Sphere</div>
+        <div class="metrics" id="metrics">Syncing 13D Vector...</div>
+    </div>
+    <div id="controls">
+        <div class="ctrl-row"><label>Harmony</label><input type="range" id="harmony" min="0" max="100" value="70"></div>
+        <div class="ctrl-row"><label>Friction</label><input type="range" id="friction" min="0" max="100" value="30"></div>
+        <div class="ctrl-row"><label>Cosmic</label><input type="range" id="cosmic" min="0" max="100" value="50"></div>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>

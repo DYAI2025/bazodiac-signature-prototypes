@@ -3,26 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bazodiac Signature - Gravitational Membrane</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Bazodiac Signature Engine</title>
+    <link rel="stylesheet" href="shell.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="ui">
-        <h1>5D Signature: Gravitational Membrane</h1>
-        <p>Fusion Coherence Index Visualization</p>
-        <div id="controls">
-            <label>Cosmic Weather: <input type="range" id="weather" min="0" max="100" value="20"></label>
-            <label>Identity Tension: <input type="range" id="tension" min="1" max="10" value="5"></label>
+    <div id="viewport"></div>
+
+    <div id="hud">
+        <div class="header">
+            <div class="brand">
+                <div class="title">Bazodiac Signature</div>
+                <div class="subtitle" id="shell-subtitle">Initializing Fusion Engine...</div>
+            </div>
+            <div class="metrics" style="font-family: var(--font-mono); font-size: 12px; color: var(--gold);">
+                SYSTEM ACTIVE | HARMONY 78% | COSMIC STATE 0.42
+            </div>
+        </div>
+
+        <div class="side-panel-left" id="archetypes-panel"></div>
+
+        <div class="side-panel-right" id="wuxing-panel"></div>
+
+        <div class="footer">
+            <div class="growth-edge" id="growth-edge">Calculating resonance potential...</div>
+            <div class="proto-switcher" id="proto-switcher"></div>
         </div>
     </div>
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
-    <script type="module" src="main.js"></script>
+
+    <script type="module" src="shell.js"></script>
 </body>
 </html>

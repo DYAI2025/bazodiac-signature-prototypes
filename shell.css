@@ -58,7 +58,11 @@ iframe {
     padding: 40px;
 }
 
-#hud > * { pointer-events: auto; }
+/* Only re-enable pointer events on elements that are actually interactive —
+   .header and .footer are full-width flex bands that would otherwise swallow
+   clicks/drags meant for the prototype iframe below (sliders, OrbitControls). */
+#hud > * { pointer-events: none; }
+#hud .side-panel-left, #hud .side-panel-right, #hud .proto-switcher { pointer-events: auto; }
 
 /* Header */
 .header {

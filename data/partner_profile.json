@@ -1,0 +1,433 @@
+{
+  "input": {
+    "date": "1988-11-03T22:35:00",
+    "tz": "Europe/Berlin",
+    "lon": 13.405,
+    "lat": 52.52
+  },
+  "wu_xing_vectors": {
+    "western_planets": {
+      "Holz": 0.1923847110325641,
+      "Feuer": 0.2814092637718254,
+      "Erde": 0.3381276490233187,
+      "Metall": 0.6842519370846632,
+      "Wasser": 0.6118834025519473
+    },
+    "bazi_pillars": {
+      "Holz": 0.0612849330175224,
+      "Feuer": 0.1121573064412086,
+      "Erde": 0.6183742210094318,
+      "Metall": 0.4420867151233905,
+      "Wasser": 0.3241196085527741
+    }
+  },
+  "harmony_index": {
+    "harmony_index": 0.5512,
+    "interpretation": "Moderate Harmonie - Teilweise Spannungen zwischen den Systemen",
+    "method": "dot_product",
+    "western_vector": {
+      "Holz": 0.1923847110325641,
+      "Feuer": 0.2814092637718254,
+      "Erde": 0.3381276490233187,
+      "Metall": 0.6842519370846632,
+      "Wasser": 0.6118834025519473
+    },
+    "bazi_vector": {
+      "Holz": 0.0612849330175224,
+      "Feuer": 0.1121573064412086,
+      "Erde": 0.6183742210094318,
+      "Metall": 0.4420867151233905,
+      "Wasser": 0.3241196085527741
+    }
+  },
+  "calibration": {
+    "h_raw": 0.5512,
+    "h_calibrated": 0.0,
+    "h_baseline": 0.7614,
+    "h_sigma": 0.1445,
+    "sigma_above": -1.455,
+    "quality": "ok",
+    "interpretation_band": "Keine messbare Kongruenz über Baseline",
+    "n_west": 14,
+    "n_bazi_contributions": 16
+  },
+  "elemental_comparison": {
+    "Holz": {
+      "western": 0.192,
+      "bazi": 0.061,
+      "difference": 0.131
+    },
+    "Feuer": {
+      "western": 0.281,
+      "bazi": 0.112,
+      "difference": 0.169
+    },
+    "Erde": {
+      "western": 0.338,
+      "bazi": 0.618,
+      "difference": -0.28
+    },
+    "Metall": {
+      "western": 0.684,
+      "bazi": 0.442,
+      "difference": 0.242
+    },
+    "Wasser": {
+      "western": 0.612,
+      "bazi": 0.324,
+      "difference": 0.288
+    }
+  },
+  "cosmic_state": 0.5,
+  "fusion_interpretation": "Harmonie-Index: 55.12%\nModerate Harmonie - Teilweise Spannungen zwischen den Systemen\n\nWestliche Dominanz: Metall\nÖstliche Dominanz: Erde\n\nIhre westliche und östliche Chart ziehen in verwandte Richtungen,\nzeigen aber deutliche Reibungszonen in Holz und Feuer.",
+  "contribution_ledger": {
+    "western": [
+      {
+        "planet": "Sun",
+        "element": "Feuer",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "traditional"
+      },
+      {
+        "planet": "Moon",
+        "element": "Wasser",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "traditional"
+      },
+      {
+        "planet": "Mercury",
+        "element": "Metall",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Dual element — Metall (night chart)",
+        "category": "traditional",
+        "chart_type_quality": "exact"
+      },
+      {
+        "planet": "Venus",
+        "element": "Metall",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "traditional"
+      },
+      {
+        "planet": "Mars",
+        "element": "Feuer",
+        "weight": 1.3,
+        "is_retrograde": true,
+        "rationale": "Classical rulership",
+        "category": "traditional"
+      },
+      {
+        "planet": "Jupiter",
+        "element": "Holz",
+        "weight": 1.3,
+        "is_retrograde": true,
+        "rationale": "Classical rulership",
+        "category": "traditional"
+      },
+      {
+        "planet": "Saturn",
+        "element": "Erde",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "traditional"
+      },
+      {
+        "planet": "Uranus",
+        "element": "Holz",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "modern_heuristic"
+      },
+      {
+        "planet": "Neptune",
+        "element": "Wasser",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "modern_heuristic"
+      },
+      {
+        "planet": "Pluto",
+        "element": "Feuer",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "modern_heuristic"
+      },
+      {
+        "planet": "Chiron",
+        "element": "Wasser",
+        "weight": 1.3,
+        "is_retrograde": true,
+        "rationale": "Classical rulership",
+        "category": "experimental"
+      },
+      {
+        "planet": "Lilith",
+        "element": "Wasser",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "experimental"
+      },
+      {
+        "planet": "NorthNode",
+        "element": "Metall",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "experimental"
+      },
+      {
+        "planet": "TrueNorthNode",
+        "element": "Metall",
+        "weight": 1.0,
+        "is_retrograde": false,
+        "rationale": "Classical rulership",
+        "category": "experimental"
+      }
+    ],
+    "bazi": [
+      {
+        "pillar": "year",
+        "source": "stem",
+        "stem_name": "Xin",
+        "element": "Metall",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "year",
+        "source": "hidden_main",
+        "branch_name": "Chou",
+        "element": "Erde",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "year",
+        "source": "hidden_middle",
+        "branch_name": "Chou",
+        "element": "Wasser",
+        "weight": 0.5,
+        "category": "traditional"
+      },
+      {
+        "pillar": "year",
+        "source": "hidden_residual",
+        "branch_name": "Chou",
+        "element": "Metall",
+        "weight": 0.3,
+        "category": "traditional"
+      },
+      {
+        "pillar": "month",
+        "source": "stem",
+        "stem_name": "Ji",
+        "element": "Erde",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "month",
+        "source": "hidden_main",
+        "branch_name": "Xu",
+        "element": "Erde",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "month",
+        "source": "hidden_middle",
+        "branch_name": "Xu",
+        "element": "Metall",
+        "weight": 0.5,
+        "category": "traditional"
+      },
+      {
+        "pillar": "month",
+        "source": "hidden_residual",
+        "branch_name": "Xu",
+        "element": "Feuer",
+        "weight": 0.3,
+        "category": "traditional"
+      },
+      {
+        "pillar": "day",
+        "source": "stem",
+        "stem_name": "Wu",
+        "element": "Erde",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "day",
+        "source": "hidden_main",
+        "branch_name": "Shen",
+        "element": "Metall",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "day",
+        "source": "hidden_middle",
+        "branch_name": "Shen",
+        "element": "Wasser",
+        "weight": 0.5,
+        "category": "traditional"
+      },
+      {
+        "pillar": "day",
+        "source": "hidden_residual",
+        "branch_name": "Shen",
+        "element": "Erde",
+        "weight": 0.3,
+        "category": "traditional"
+      },
+      {
+        "pillar": "hour",
+        "source": "stem",
+        "stem_name": "Gui",
+        "element": "Wasser",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "hour",
+        "source": "hidden_main",
+        "branch_name": "Chou",
+        "element": "Erde",
+        "weight": 1.0,
+        "category": "traditional"
+      },
+      {
+        "pillar": "hour",
+        "source": "hidden_middle",
+        "branch_name": "Chou",
+        "element": "Wasser",
+        "weight": 0.5,
+        "category": "traditional"
+      },
+      {
+        "pillar": "hour",
+        "source": "hidden_residual",
+        "branch_name": "Chou",
+        "element": "Metall",
+        "weight": 0.3,
+        "category": "traditional"
+      }
+    ],
+    "chart_type_quality": "exact"
+  },
+  "house_quality": {
+    "flag": "exact",
+    "system": "placidus",
+    "requested": "placidus",
+    "reason": null
+  },
+  "quality_flags": {
+    "house_system_fallback": false,
+    "house_system_requested": "placidus",
+    "house_system_used": "placidus",
+    "ephemeris_mode": "SWIEPH",
+    "chart_type_quality": "exact"
+  },
+  "provenance": {
+    "engine_version": "1.0.0-rc1-20260220",
+    "parameter_set_id": "default_v1",
+    "ruleset_id": "traditional_bazi_2026",
+    "ephemeris_id": "swieph_sepl18",
+    "tzdb_version_id": "unknown",
+    "house_system": "placidus",
+    "zodiac_mode": "tropical",
+    "computation_timestamp": "2026-06-30T14:02:11.418302+00:00",
+    "parameter_set": {
+      "version": "1.1.0",
+      "retrograde_weight": 1.3,
+      "hidden_stem_main_qi": 1.0,
+      "hidden_stem_middle_qi": 0.5,
+      "hidden_stem_residual_qi": 0.3,
+      "stem_weight": 1.0,
+      "mercury_dual_rule": "earth_day_metal_night",
+      "harmony_method": "dot_product",
+      "aspect_orb_model": "differentiated_v1",
+      "aspect_base_orbs": {
+        "Sun": 10.0,
+        "Moon": 10.0,
+        "Mercury": 7.0,
+        "Venus": 7.0,
+        "Mars": 7.0,
+        "Jupiter": 8.0,
+        "Saturn": 8.0,
+        "Uranus": 5.0,
+        "Neptune": 5.0,
+        "Pluto": 5.0,
+        "Chiron": 3.0,
+        "Lilith": 2.0,
+        "NorthNode": 3.0,
+        "TrueNorthNode": 3.0
+      },
+      "aspect_factors": {
+        "conjunction": 1.0,
+        "sextile": 0.75,
+        "square": 0.875,
+        "trine": 1.0,
+        "opposition": 1.0
+      },
+      "soulprint_weights": {
+        "sun": 1.0,
+        "moon": 0.8,
+        "ascendant": 0.6,
+        "personal_planet": 0.4,
+        "wuxing_sector": 0.5
+      },
+      "wuxing_sector_mapping": {
+        "Holz": [
+          3,
+          4
+        ],
+        "Feuer": [
+          4,
+          5
+        ],
+        "Erde": [
+          1,
+          7
+        ],
+        "Metall": [
+          6,
+          9
+        ],
+        "Wasser": [
+          8,
+          11
+        ]
+      },
+      "transit_planet_weights": {
+        "sun": 1.0,
+        "moon": 0.5,
+        "mercury": 0.6,
+        "venus": 0.7,
+        "mars": 0.8,
+        "jupiter": 1.2,
+        "saturn": 1.5,
+        "uranus": 1.5,
+        "neptune": 1.8,
+        "pluto": 2.0
+      }
+    }
+  },
+  "precision": {
+    "birth_time_known": true,
+    "provisional_fields": []
+  }
+}

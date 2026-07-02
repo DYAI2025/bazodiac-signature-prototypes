@@ -186,3 +186,133 @@ export async function loadSignature(path = DEFAULT_DATA_URL) {
         return computeSignature(FALLBACK);
     }
 }
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+/**
+ * applyDynamics — DYNAMIC_SIGNATURE_CONCEPT.md §1/§4.
+ *
+ * Applies bounded live deltas to the INPUT vectors (W₀/B₀) of a FuFirE-shaped
+ * API output and returns a deep-copied, modified apiOutput — never touches the
+ * fused result. Feed the returned object into the unchanged computeSignature()
+ * pipeline so all derived quantities stay consistent with the canonical math.
+ *
+ *   W(t) = clamp01( W₀ + ΔW_transit + ΔW_quiz + ΔW_agent )
+ *   B(t) = clamp01( B₀ + ΔB_quiz + ΔB_agent )          (transits touch W only)
+ *
+ * Bounds per layer (concept doc §1): transit ±0.10, quiz ±0.10×completed_ratio,
+ * agent ±0.10. cosmic_weather.normalized overrides cosmic_state.
+ *
+ * apiOutput vector keys are capitalized German (Holz, Feuer, …); dyn delta keys
+ * arrive lowercase — matching is case-insensitive.
+ *
+ * @param {object} apiOutput FuFirE fusion output (data/user_profile.json shape)
+ * @param {object} [dyn] { transit_deltas:{western:{...}}, quiz_deltas:{bazi:{...}, western:{...}, completed_ratio}, agent_deltas:{western:{...}, bazi:{...}}, cosmic_weather:{normalized, source} }
+ * @returns {object} deep copy of apiOutput with modulated input vectors
+ */
+export function applyDynamics(apiOutput, dyn) {
+    const copy = (typeof structuredClone === 'function')
+        ? structuredClone(apiOutput)
+        : JSON.parse(JSON.stringify(apiOutput));
+    if (!dyn) return copy;
+
+    const quizRatio = clamp(dyn.quiz_deltas?.completed_ratio ?? 1, 0, 1);
+    // Per DYNAMIC_SIGNATURE_CONCEPT.md §1: transits modulate W only; quiz + agent both.
+    const families = [
+        { deltas: dyn.transit_deltas, bound: 0.10, sides: ['western'] },
+        { deltas: dyn.quiz_deltas,    bound: 0.10 * quizRatio, sides: ['western', 'bazi'] },
+        { deltas: dyn.agent_deltas,   bound: 0.10, sides: ['western', 'bazi'] }
+    ];
+
+    const vectors = copy.wu_xing_vectors || {};
+    const targets = {
+        western: vectors.western_planets || vectors.western,
+        bazi: vectors.bazi_pillars || vectors.bazi
+    };
+
+    let vectorsModified = false;
+    for (const { deltas, bound, sides } of families) {
+        if (!deltas || bound <= 0) continue;
+        for (const side of sides) {
+            const sideDeltas = deltas[side];
+            const target = targets[side];
+            if (!sideDeltas || !target) continue;
+            const keyMap = {};
+            for (const k of Object.keys(target)) keyMap[k.toLowerCase()] = k;
+            for (const [rawKey, rawDelta] of Object.entries(sideDeltas)) {
+                const targetKey = keyMap[rawKey.toLowerCase()];
+                if (targetKey === undefined || typeof rawDelta !== 'number' || !Number.isFinite(rawDelta)) continue;
+                const bounded = clamp(rawDelta, -bound, bound);
+                target[targetKey] = clamp((target[targetKey] || 0) + bounded, 0, 1);
+                vectorsModified = true;
+            }
+        }
+    }
+
+    // The natal harmony_index (FuFirE) belongs to the natal vectors. Once the
+    // input vectors are modulated, drop it so computeSignature recomputes
+    // harmony(t) from the live deltas — otherwise harmony never "breathes".
+    if (vectorsModified) delete copy.harmony_index;
+
+    if (typeof dyn.cosmic_weather?.normalized === 'number' && Number.isFinite(dyn.cosmic_weather.normalized)) {
+        copy.cosmic_state = clamp(dyn.cosmic_weather.normalized, 0, 1);
+    }
+
+    return copy;
+}
+
+/**
+ * computeOverlay — Overlay/Match-Mode für zwei Signaturen, MATHEMATICS.md §9.1:
+ *
+ *   delta_overlay[e]    = |strength_A[e] − strength_B[e]|
+ *   resonance[e]        = 1 − delta_overlay[e]
+ *   friction_overlay[e] = delta_overlay[e] × (1 − harmony_A) × (1 − harmony_B)
+ *
+ * Plus: coherence = Kosinus-Ähnlichkeit der beiden 5D-Stärkevektoren (0..1)
+ * und eine kurze deutsche Narrative (stärkste Resonanz + stärkste Reibung).
+ *
+ * @param {object} sigA computeSignature() result of person A
+ * @param {object} sigB computeSignature() result of person B
+ * @returns {{ perElement: Array<{id,label,color,deltaOverlay,resonance,frictionOverlay}>, coherence: number, narrative: string }}
+ */
+export function computeOverlay(sigA, sigB) {
+    const hA = sigA.harmony ?? 0;
+    const hB = sigB.harmony ?? 0;
+    const mapA = Object.fromEntries(sigA.elements.map(e => [e.id, e]));
+    const mapB = Object.fromEntries(sigB.elements.map(e => [e.id, e]));
+
+    const perElement = ELEMENT_ORDER.map(id => {
+        const meta = ELEMENT_META[id];
+        const sA = mapA[id]?.strength || 0;
+        const sB = mapB[id]?.strength || 0;
+        const deltaOverlay = Math.abs(sA - sB);
+        return {
+            id,
+            label: meta.label,
+            color: meta.color,
+            deltaOverlay,
+            resonance: 1 - deltaOverlay,
+            frictionOverlay: deltaOverlay * (1 - hA) * (1 - hB)
+        };
+    });
+
+    let dot = 0, normA = 0, normB = 0;
+    for (const id of ELEMENT_ORDER) {
+        const a = mapA[id]?.strength || 0;
+        const b = mapB[id]?.strength || 0;
+        dot += a * b;
+        normA += a * a;
+        normB += b * b;
+    }
+    const denom = Math.sqrt(normA) * Math.sqrt(normB);
+    const coherence = denom > 0 ? clamp(dot / denom, 0, 1) : 0;
+
+    const strongestResonance = perElement.reduce((best, e) => (e.resonance > best.resonance ? e : best));
+    const strongestFriction = perElement.reduce((worst, e) => (e.frictionOverlay > worst.frictionOverlay ? e : worst));
+    const narrative =
+        `Stärkste Resonanz: ${strongestResonance.label} (${(strongestResonance.resonance * 100).toFixed(0)}% Gleichklang). ` +
+        `Stärkste Reibung: ${strongestFriction.label} (${(strongestFriction.frictionOverlay * 100).toFixed(0)}% Reibung). ` +
+        `Gesamt-Kohärenz der beiden Signaturen: ${(coherence * 100).toFixed(0)}%.`;
+
+    return { perElement, coherence, narrative };
+}

@@ -5,6 +5,11 @@
 import { loadSignature, ELEMENT_META, ELEMENT_ORDER } from './shared/signature-data.js';
 
 const PROTOTYPES = {
+    signature: {
+        url: 'prototypes/signature/index.html',
+        title: 'Bazodiac Signatur',
+        subtitle: 'The Living Signature'
+    },
     membrane: {
         url: 'prototypes/membrane/index.html',
         title: 'Gravitational Membrane',
@@ -124,6 +129,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         switcher.appendChild(btn);
     });
 
-    // Start with Membrane
-    switchPrototype('membrane');
+    // Start with the unified signature
+    switchPrototype('signature');
 });

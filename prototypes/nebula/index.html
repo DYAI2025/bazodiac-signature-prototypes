@@ -14,7 +14,10 @@
         .ctrl-row { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
         label { font-size: 12px; color: #aaa; text-transform: uppercase; }
         input { cursor: pointer; accent-color: #d4af37; }
+        /* Inside the unified shell the shell HUD already shows title + metrics */
+        html.embedded #hud { display: none; }
     </style>
+    <script>if (window.self !== window.top) document.documentElement.classList.add('embedded');</script>
 </head>
 <body>
     <div id="hud">

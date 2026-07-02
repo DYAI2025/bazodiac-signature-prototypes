@@ -545,8 +545,12 @@ async function enableMatch() {
     matchLoading = true;
     if (matchBtn) { matchBtn.textContent = 'Lädt…'; matchBtn.disabled = true; }
     try {
+        // fetch directly instead of loadSignature(): its silent FALLBACK profile
+        // would present fabricated data as the partner (anti-fabrication rule).
         const partnerUrl = new URL('../../data/partner_profile.json', import.meta.url).href;
-        partnerSignature = await loadSignature(partnerUrl);
+        const res = await fetch(partnerUrl);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        partnerSignature = computeSignature(await res.json());
     } catch (err) {
         console.error('[signature] Partnerprofil nicht ladbar:', err);
         partnerSignature = null;
@@ -618,7 +622,7 @@ if (cosmicInput) {
     cosmicInput.addEventListener('input', () => {
         overridden = true;
         cosmicCurrent = cosmicInput.value / 100;
-        cosmicSourceLabel = 'SIMULIERT';
+        cosmicSourceLabel = 'OVERRIDE';
         refreshCosmicSource();
         refuseSignature();
         updateHud();

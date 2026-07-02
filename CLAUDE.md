@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Visual prototypes for the "Bazodiac Signature" — a 5D/13D WuXing (Western astrology × Bazi) identity vector rendered as Three.js scenes. Three competing visual metaphors for the same underlying data:
 
+- `prototypes/signature/` — **Bazodiac Signatur (the unified show-piece)**: composes the DNA of the other three — GPU-shader cymatic point-shell core (5 element standing waves from the fused vector), WuXing pentagon with animated Shēng/Kè cycle arcs and traveling pulses, membrane-style ground echo. Adds live dynamics (`shared/dynamics.js`: NOAA SWPC Kp feed with visible SIMULIERT fallback, re-fusion via `applyDynamics`) and a Match mode (`computeOverlay` per MATHEMATICS.md §9.1 against `data/partner_profile.json`, Kohärenz = cosine similarity — no fake match scores).
 - `prototypes/membrane/` — Gravitational Membrane: deformed `PlaneGeometry`, identity nodes as masses curving the mesh.
 - `prototypes/sphere/` — Cymatic Resonance Sphere: particle system, frequency-driven Chladni-style patterns.
 - `prototypes/nebula/` — Bioluminescent Neuro-Nebula: graph of glowing nodes/filaments.

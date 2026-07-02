@@ -39,7 +39,7 @@ Der Natal-Kern dominiert immer — die Signatur „atmet", sie mutiert nicht.
 | 2 Cosmic Weather | NOAA SWPC / NASA DONKI / GFZ Kp (via Astro-Noctum `GET /api/space-weather`) | Minuten–Stunden | 0.05 auf W, primär → cosmicState | — (Momentwert) |
 | 3 Quiz | ContributionEvents + AFFINITY_MAP (Astro-Noctum, Supabase `contribution_events`) | pro Quiz-Event | 0.10 | ∞ (kumulativ, sättigend) |
 | 4 Agent-Gespräche | Supabase `agent_conversations` → Marker-Extraktion | pro Session | 0.10 | ~7 Tage (exponentieller Decay) |
-| 5 Die 7 Hypothesen (Eve & Levi) | **NICHT GEFUNDEN — siehe §7** | — | — | — |
+| 5 Hypothesen-Zyklus (Eve & Levi) | `eve_hypotheses` + `agent_reflections` (Supabase), MiroShark-Simulation | rekursiv, pro Zyklus | interpretativ (keine Vektormodulation) | via `confidence`-Metrik |
 
 ---
 
@@ -110,11 +110,53 @@ laufen durch dieselbe AFFINITY_MAP wie Quiz-Marker, aber mit **Decay**:
 Ein intensives Gespräch färbt die Signatur eine Woche, dann kehrt sie zum Anker zurück.
 „Lebendig, aber verankert."
 
-### Layer 5 — Die 7 Hypothesen als interpretive Linsen
+### Layer 5 — Der Dynamische Hypothesen-Zyklus (Eve & Levi)
 
-Konzeptioneller Platzhalter: Hypothesen wirken nicht als Vektormodulation, sondern als
-**Prioren für die Narrativ-Erzeugung** (§8) — welche Deutung aus denselben Zahlen erzählt wird.
-Inhalt: siehe §7 (offen).
+Quelle: Vault-Seiten `feature_dokumentation_der_dynamische_hypothesen_z` und
+`architektur_report_die_astrologische_fusions_engi` (NotebookLM-Reports — Inhalte dort selbst
+als fehleranfällig markiert, Kernstruktur aber konsistent über beide Dokumente).
+
+Die **sieben Hypothesen-Typen** sind eine Taxonomie von „Szenario-Seeds" (Tabellen
+`eve_hypotheses`, `agent_reflections`), keine sieben festen Aussagen. Jeder Typ ist ein
+Analyse-Blickwinkel — und jeder dockt an eine bereits existierende Signatur-Größe an:
+
+| # | Hypothesen-Typ | Ankert an (bestehende Mathematik) |
+|---|---|---|
+| 1 | **Identität** (Core-Structure) | Natal-Kern W₀/B₀, `dominant` (§6.3) |
+| 2 | **Spannung** (Tension Dynamics) | `delta[e]`, Friction-Edges (§3.3, §4.3) |
+| 3 | **Resonanz** (Alignment) | `harmony(t)` × Transit-Layer 1 |
+| 4 | **Handlung** (Agency-Vektoren) | Pattern-Amplifier X-Achse (s. u.) |
+| 5 | **Wachstum** (Evolutionary Growth) | `growthEdge` (§6.4), Delta-Trajektorien (§9.2) |
+| 6 | **Stabilität** (Invariant Stability) | Elemente mit min. delta, Erde-Vektor |
+| 7 | **Kontext** (Environmental Dynamics) | `cosmicState(t)` ↔ Layer 2 Space-Weather-Snapshots |
+
+**Mechanik (MiroShark-Orchestrator):** FuFirE-Rohdaten + Supabase (`profiles`, `birth_data`,
+`natal_charts`) → serverseitiger `UserPatternState.v1` + `ScenarioSeed.v1` → rekursiver
+Hypothesen-Graph (jeder Ast: `parent_id` + `confidence`) → `Result Normalizer` erfasst
+Abweichungen als `eve_deviation_candidates` und korrigiert die Hypothesen rekursiv.
+Pro Hypothese zwei Kennzahlen, beide direkt aus der Signatur-Mathematik ableitbar:
+**Coherence Delta** (harmonische Übereinstimmung der Teilsysteme) und **Tension Delta**
+(systemische Reibung).
+
+**Pattern-Amplifier-Achsen (3D-Wachstumsraum):** die Signatur exportiert pro Hypothese einen
+Richtungsvektor — X = Aktivierung/Agency (Initiative ↔ Stabilisieren), Y = Kohärenz/Spannung,
+Z = Externalisierung ↔ Internalisierung. Branch-Kollisionen im Graph: Friktion (Amber/Rot) vs.
+Resonanz (Cyan/Smaragd). Das ist praktisch ein **vierter Prototyp** (wachsender Hypothesen-Baum)
+oder ein Overlay auf der Nebula.
+
+**Non-Heuristic-Regel** (verbindlich): keine erfundenen Scores; jede Hypothesen-Aussage trägt
+Provenance-Kategorie **Beobachtung / Herleitung / Interpretation** und Evidence-Ledger-Einträge.
+Hehun-/Partneranalysen nur mit explizitem Consent (CAN-009).
+
+### Der Rat der Sechs — konkreter Ersatz für die gemockten Archetypen-Karten
+
+Das Shell-HUD zeigt aktuell vier Fantasie-Archetypen (`ARCHETYPES` in shell.js, hardcodiert).
+Die Architektur definiert stattdessen sechs datengetriebene Archetypen als Interface-Layer:
+**Sonne, Mond, Aszendent** (West = psychologische Befindlichkeit) + **Day-Master, Jahrestier**
+(BaZi = struktureller Rahmen/Kapazität) + **dominantes Wu-Xing-Element**. Bootstrap-Phase setzt
+das energetische Budget, Daily-Ritual prozessiert transiente Impulse (`daily_pulses`).
+→ Umbau des Archetypen-Panels auf diese sechs, gespeist aus FuFirE-Chartdaten, ist der
+naheliegendste nächste sichtbare Schritt in den Prototypen.
 
 ---
 
@@ -182,13 +224,16 @@ Heute sind die Regler (Cosmic Weather / Harmony / Friction / …) reine Handeing
 
 ## 7. Offene Punkte
 
-1. **Die 7 Hypothesen von Eve & Levi wurden nirgends gefunden** — nicht im SemanticMind-Vault,
-   nicht in `~/Bazodiac-signatur_5D`, nicht per Volltext in den Projekt-Wikis; gbrain war wegen
-   ungültigem Token nicht abfragbar (gleicher Dokumentenbestand wie der Vault). Sie werden hier
-   bewusst **nicht erfunden**. → Benjamin: Quelle nennen (Notion? Agent-Chat-Log? gbrain-Seite
-   von Hermes?), dann werden sie als Layer-5-Linsen formalisiert.
-2. gbrain-MCP-Token ist abgelaufen/rotiert (401) — betrifft vermutlich auch Hermes' Memory-Hooks.
-3. Kalibrierung der α-Bounds und der cosmicState-Formel braucht echte Feed-Daten (erst Live-Smoke,
+1. **Hypothesen-Quellen sind NotebookLM-Reports** (selbst als fehleranfällig gekennzeichnet).
+   Die Taxonomie (7 Typen, `eve_hypotheses`/`agent_reflections`, MiroShark-Flow,
+   Pattern-Amplifier-Achsen) sollte gegen das echte Supabase-Schema bzw. den MiroShark-Code
+   verifiziert werden, bevor Layer 5 implementiert wird.
+2. Der Architektur-Report nennt **Kosinus-Ähnlichkeit** als Basis des Harmony Index; die
+   Prototypen rechnen `1 − mean(delta)/2` (§6.1). Beide sind Kohärenzmaße über denselben
+   5D-Vektoren — vor Layer-1-Bau entscheiden, welche Definition kanonisch ist (FuFirE-Code
+   ist die Autorität).
+3. gbrain-MCP-Token ist abgelaufen/rotiert (401) — betrifft vermutlich auch Hermes' Memory-Hooks.
+4. Kalibrierung der α-Bounds und der cosmicState-Formel braucht echte Feed-Daten (erst Live-Smoke,
    dann Tuning — „nothing is true until it runs").
-4. FuFirE-Live-Deployment (api.fufire.space vs. Railway vs. Cloud Run) laut Vault widersprüchlich
+5. FuFirE-Live-Deployment (api.fufire.space vs. Railway vs. Cloud Run) laut Vault widersprüchlich
    dokumentiert → vor Integration klären.

@@ -249,10 +249,31 @@ export function applyDynamics(apiOutput, dyn) {
         }
     }
 
-    // The natal harmony_index (FuFirE) belongs to the natal vectors. Once the
-    // input vectors are modulated, drop it so computeSignature recomputes
-    // harmony(t) from the live deltas — otherwise harmony never "breathes".
-    if (vectorsModified) delete copy.harmony_index;
+    // The natal harmony_index (FuFirE, calibrated) and the local delta-based
+    // computeHarmony live on different scales — simply deleting the API value
+    // would make harmony jump discontinuously on the first dynamics tick.
+    // Instead rescale the calibrated anchor relative to the local measure:
+    //   harmony(t) = apiH × h_local(t) / h_local(0)
+    // Unchanged vectors → ratio 1 → no jump; the FuFirE calibration stays
+    // authoritative while harmony still breathes with the live deltas.
+    if (vectorsModified) {
+        const apiH = copy.harmony_index?.harmony_index;
+        if (typeof apiH === 'number' && Number.isFinite(apiH)) {
+            const localHarmony = (raw) => {
+                const w = {}, b = {};
+                const rw = raw.wu_xing_vectors?.western_planets || raw.wu_xing_vectors?.western || {};
+                const rb = raw.wu_xing_vectors?.bazi_pillars || raw.wu_xing_vectors?.bazi || {};
+                for (const [k, v] of Object.entries(rw)) w[k.toLowerCase()] = v;
+                for (const [k, v] of Object.entries(rb)) b[k.toLowerCase()] = v;
+                return computeHarmony(computeDeltas(w, b));
+            };
+            const h0 = localHarmony(apiOutput);
+            const ht = localHarmony(copy);
+            copy.harmony_index.harmony_index = h0 > 0 ? clamp(apiH * (ht / h0), 0, 1) : apiH;
+        } else {
+            delete copy.harmony_index; // no calibrated anchor → computeSignature recomputes locally
+        }
+    }
 
     if (typeof dyn.cosmic_weather?.normalized === 'number' && Number.isFinite(dyn.cosmic_weather.normalized)) {
         copy.cosmic_state = clamp(dyn.cosmic_weather.normalized, 0, 1);
